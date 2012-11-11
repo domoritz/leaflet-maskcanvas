@@ -57,7 +57,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 
         this.bounds = new L.LatLngBounds(dataset);
 
-        this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 100);
+        this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 10, 8);
 
         dataset.forEach(function(d) {
             self._quad.insert({
