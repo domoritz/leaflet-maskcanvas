@@ -8,13 +8,13 @@ __Features__:
 * High performance even for large dataset because of the [QuadTree](https://en.wikipedia.org/wiki/Quadtree) that is used internally
 * Custom color and circle size
 
-# Demo
+## Demo
 
 Not yet available.
 
-#Usage
+##Usage
 
-## Set up
+### Set up
 
 * Add the MaskCanvas and Quadtree libraries.
 
@@ -45,7 +45,7 @@ The data format is a simple array of `[lat, lng]` pairs.
 
 For example `[[51.503076,-0.280115],[51.51412,-0.075334],[51.5154,-0.072642],[51.54072,-0.299246]]`. I recommend that you load the data set asynchronously in order to keep the page responsive. Once the data is loaded, you can add it to the layer and display it.
 
-## Possible options
+### Possible options
 
 The MaskCanvas layer supports all [Leaflet canvas layer options](http://leafletjs.com/reference.html#tilelayer-options) which can be passed to `L.TileLayer.maskCanvas`. You probably want to set the layer opacity.
 
@@ -58,8 +58,10 @@ options: {
 }
 ```
 
-# Screenshot
+## Screenshot
 
-# Acknowledgement
+![screenshot](https://raw.github.com/domoritz/leaflet-maskcanvas/master/screenshot.png "Screenshot showing the locate control")
+
+## Acknowledgement
 
 The QuadTree implementation comes from https://github.com/jsmarkus/ExamplesByMesh/tree/master/JavaScript/QuadTree and has been slightly modified. Original Implementation by Mike Chambers.
