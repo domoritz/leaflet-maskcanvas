@@ -52,10 +52,10 @@ The MaskCanvas layer supports all [Leaflet canvas layer options](http://leafletj
 Other possible options:
 
 ```javascript
-options: {
+var layer = L.TileLayer.maskCanvas({
        radius: 5,  // radius of a masked circle around a data point
        color: '#000'  // the color of the layer
-}
+});
 ```
 
 ## Screenshot
