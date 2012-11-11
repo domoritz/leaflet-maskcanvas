@@ -41,9 +41,7 @@ layer.setData(data);
 map.addLayer(layer);
 ```
 
-The data format is a simple array of `[lat, lng]` pairs.
-
-For example `[[51.503076,-0.280115],[51.51412,-0.075334],[51.5154,-0.072642],[51.54072,-0.299246]]`. I recommend that you load the data set asynchronously in order to keep the page responsive. Once the data is loaded, you can add it to the layer and display it.
+The data format is a simple array of `[lat, lng]` pairs. For example `[[51.50,-0.28],[51.51,-0.07],[51.51,-0.07],[51.54,-0.29]]`. I recommend that you load the data set asynchronously in order to keep the page responsive. Once the data is loaded, you can add it to the layer and display it.
 
 ### Possible options
 
