@@ -60,7 +60,7 @@ var layer = L.TileLayer.maskCanvas({
 
 ## Screenshot
 
-![screenshot](https://raw.github.com/domoritz/leaflet-maskcanvas/master/screenshot.png "Screenshot showing the locate control")
+![screenshot](https://raw.github.com/domoritz/leaflet-maskcanvas/master/screenshot.png "Screenshot showing mask canvas layer")
 
 ## Acknowledgement
 
