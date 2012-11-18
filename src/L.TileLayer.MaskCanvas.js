@@ -104,6 +104,10 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     },
 
     _draw: function (ctx) {
+        if (!this._quad || !this._map) {
+            return;
+        }
+
         var tileSize = this.options.tileSize;
 
         var nwPoint = ctx.tilePoint.multiplyBy(tileSize);
