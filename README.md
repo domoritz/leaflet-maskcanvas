@@ -51,8 +51,11 @@ Other possible options:
 
 ```javascript
 var layer = L.TileLayer.maskCanvas({
-       radius: 5,  // radius of a masked circle around a data point
-       color: '#000'  // the color of the layer
+       pixelRadius: 5,  // radius in pixels
+       absoluteRadius: 750,  // radius in meters
+       useAbsoluteRadius: true,  // true: r in meters, false: r in pixels
+       color: '#000',  // the color of the layer
+       opacity: 0.5,  // opacity of the not coverted area
 });
 ```
 

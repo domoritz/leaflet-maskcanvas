@@ -1,6 +1,8 @@
 L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 	options: {
-        radius: 5,
+        pixelRadius: 5,  // radius in pixels
+        absoluteRadius: 750,  // radius in meters
+        useAbsoluteRadius: true,  // true: r in meters, false: r in pixels
         color: '#000',
         opacity: 0.5,
         debug: false
@@ -57,7 +59,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 
         this.bounds = new L.LatLngBounds(dataset);
 
-        this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 10, 8);
+        this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 6, 6);
 
         dataset.forEach(function(d) {
             self._quad.insert({
@@ -82,14 +84,14 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     },
 
     _drawPoints: function (ctx, coordinates) {
-        var c = ctx.canvas;
-        var g = c.getContext('2d');
-        var self = this;
-        var p;
+        var c = ctx.canvas,
+            g = c.getContext('2d'),
+            self = this,
+            p;
         coordinates.forEach(function(coords){
             p = self._tilePoint(ctx, coords);
             g.beginPath();
-            g.arc(p[0], p[1], self.options.radius, 0, Math.PI * 2);
+            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
             g.fill();
         });
     },
@@ -103,6 +105,32 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         };
     },
 
+    _getLatRadius: function () {
+        return (this.options.absoluteRadius / 40075017) * 360;
+    },
+
+    _getLngRadius: function () {
+        return this._getLatRadius() / Math.cos(L.LatLng.DEG_TO_RAD * this._latlng.lat);
+    },
+
+    // call to update the radius
+    projectLatlngs: function () {
+        var lngRadius = this._getLngRadius(),
+            latlng2 = new L.LatLng(this._latlng.lat, this._latlng.lng - lngRadius, true),
+            point2 = this._map.latLngToLayerPoint(latlng2),
+            point = this._map.latLngToLayerPoint(this._latlng);
+        this._radius = Math.max(Math.round(point.x - point2.x), 1);
+    },
+
+    // the radius of a circle can be either absolute in pixels or in meters
+    _getRadius: function() {
+        if (this.options.useAbsoluteRadius) {
+            return this._radius;
+        } else{
+            return this.options.pixelRadius;
+        }
+    },
+
     _draw: function (ctx) {
         if (!this._quad || !this._map) {
             return;
@@ -113,8 +141,14 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         var nwPoint = ctx.tilePoint.multiplyBy(tileSize);
         var sePoint = nwPoint.add(new L.Point(tileSize, tileSize));
 
+        if (this.options.useAbsoluteRadius) {
+            var centerPoint = nwPoint.add(new L.Point(tileSize/2, tileSize/2));
+            this._latlng = this._map.unproject(centerPoint);
+            this.projectLatlngs();
+        }
+
         // padding
-        var pad = new L.Point(this.options.radius, this.options.radius);
+        var pad = new L.Point(this._getRadius(), this._getRadius());
         nwPoint = nwPoint.subtract(pad);
         sePoint = sePoint.add(pad);
 
