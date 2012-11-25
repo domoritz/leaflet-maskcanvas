@@ -10,7 +10,7 @@ __Features__:
 
 ## Demo
 
-Not yet available.
+Check out the demo at http://domoritz.github.com/vbb-coverage/.
 
 ##Usage
 
