@@ -51,8 +51,7 @@ Other possible options:
 
 ```javascript
 var layer = L.TileLayer.maskCanvas({
-       pixelRadius: 5,  // radius in pixels
-       absoluteRadius: 750,  // radius in meters
+       radius: 5,  // radius in pixels or in meters (see useAbsoluteRadius)
        useAbsoluteRadius: true,  // true: r in meters, false: r in pixels
        color: '#000',  // the color of the layer
        opacity: 0.5,  // opacity of the not coverted area

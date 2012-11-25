@@ -1,7 +1,6 @@
 L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 	options: {
-        pixelRadius: 5,  // radius in pixels
-        absoluteRadius: 750,  // radius in meters
+        radius: 5,
         useAbsoluteRadius: true,  // true: r in meters, false: r in pixels
         color: '#000',
         opacity: 0.5,
@@ -106,7 +105,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     },
 
     _getLatRadius: function () {
-        return (this.options.absoluteRadius / 40075017) * 360;
+        return (this.options.radius / 40075017) * 360;
     },
 
     _getLngRadius: function () {
@@ -127,7 +126,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         if (this.options.useAbsoluteRadius) {
             return this._radius;
         } else{
-            return this.options.pixelRadius;
+            return this.options.radius;
         }
     },
 
