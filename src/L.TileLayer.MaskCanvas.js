@@ -162,10 +162,9 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
             coordinates.push([obj.y, obj.x]);
         });
 
-        this._drawPoints(ctx, coordinates);
-
-        var c = ctx.canvas;
-        var g = c.getContext('2d');
+        if (coordinates.length) {
+            this._drawPoints(ctx, coordinates);
+        }
     }
 });
 
