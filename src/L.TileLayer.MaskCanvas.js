@@ -73,30 +73,12 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         var s = ctx.tilePoint.multiplyBy(this.options.tileSize);
 
         // actual coords to tile 'space'
-        var p = this._map.project(new L.LatLng(coords[0], coords[1]));
+        var p = this._map.project(new L.LatLng(coords.y, coords.x));
 
         // point to draw
         var x = Math.round(p.x - s.x);
         var y = Math.round(p.y - s.y);
         return [x, y];
-    },
-
-    _drawPoints: function (ctx, coordinates) {
-        var c = ctx.canvas,
-            g = c.getContext('2d'),
-            self = this,
-            p,
-            tileSize = this.options.tileSize;
-        g.globalCompositeOperation = 'source-over';
-        g.fillStyle = this.options.color;
-        g.fillRect(0, 0, tileSize, tileSize);
-        g.globalCompositeOperation = 'destination-out';
-        coordinates.forEach(function(coords){
-            p = self._tilePoint(ctx, coords);
-            g.beginPath();
-            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
-            g.fill();
-        });
     },
 
     _boundsToQuery: function(bounds) {
@@ -157,15 +139,24 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 
         var bounds = new L.LatLngBounds(this._map.unproject(sePoint), this._map.unproject(nwPoint));
 
-        var coordinates = [];
-        this._quad.retrieveInBounds(this._boundsToQuery(bounds)).forEach(function(obj) {
-            coordinates.push([obj.y, obj.x]);
-        });
+        var coordinates = this._quad.retrieveInBounds(this._boundsToQuery(bounds));
 
-        this._drawPoints(ctx, coordinates);
-
-        var c = ctx.canvas;
-        var g = c.getContext('2d');
+        // draw points if found in tile bounds
+        var c = ctx.canvas,
+            g = c.getContext('2d'),
+            self = this,
+            p,
+            tileSize = this.options.tileSize;
+        g.globalCompositeOperation = 'source-over';
+        g.fillStyle = this.options.color;
+        g.fillRect(0, 0, tileSize, tileSize);
+        g.globalCompositeOperation = 'destination-out';
+        for (var i = 0, l = coordinates.length; i < l; i++){
+            p = self._tilePoint(ctx, coordinates[i]);
+            g.beginPath();
+            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
+            g.fill();
+        }
     }
 });
 
