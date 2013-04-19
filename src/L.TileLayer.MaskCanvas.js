@@ -92,7 +92,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         g.fillRect(0, 0, tileSize, tileSize);
         g.globalCompositeOperation = 'destination-out';
         coordinates.forEach(function(coords){
-            p = self._tilePoint(ctx, coords);
+            p = self._tilePoint(ctx, [coords.y, coords.x]);
             g.beginPath();
             g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
             g.fill();
@@ -157,12 +157,11 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 
         var bounds = new L.LatLngBounds(this._map.unproject(sePoint), this._map.unproject(nwPoint));
 
-        var coordinates = [];
-        this._quad.retrieveInBounds(this._boundsToQuery(bounds)).forEach(function(obj) {
-            coordinates.push([obj.y, obj.x]);
-        });
+        var coordinates = this._quad.retrieveInBounds(this._boundsToQuery(bounds));
 
-        this._drawPoints(ctx, coordinates);
+        if (coordinates.length) {
+            this._drawPoints(ctx, coordinates);
+        }
 
         var c = ctx.canvas;
         var g = c.getContext('2d');
