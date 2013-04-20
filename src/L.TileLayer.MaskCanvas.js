@@ -81,6 +81,24 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         return [x, y];
     },
 
+    _drawPoints: function (ctx, coordinates) {
+        var c = ctx.canvas,
+            g = c.getContext('2d'),
+            self = this,
+            p,
+            tileSize = this.options.tileSize;
+        g.globalCompositeOperation = 'source-over';
+        g.fillStyle = this.options.color;
+        g.fillRect(0, 0, tileSize, tileSize);
+        g.globalCompositeOperation = 'destination-out';
+        coordinates.forEach(function(coords) {
+            p = self._tilePoint(ctx, coords);
+            g.beginPath();
+            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
+            g.fill();
+        });
+    },
+
     _boundsToQuery: function(bounds) {
         return {
             x: bounds.getSouthWest().lng,
@@ -141,22 +159,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 
         var coordinates = this._quad.retrieveInBounds(this._boundsToQuery(bounds));
 
-        // draw points if found in tile bounds
-        var c = ctx.canvas,
-            g = c.getContext('2d'),
-            self = this,
-            p,
-            tileSize = this.options.tileSize;
-        g.globalCompositeOperation = 'source-over';
-        g.fillStyle = this.options.color;
-        g.fillRect(0, 0, tileSize, tileSize);
-        g.globalCompositeOperation = 'destination-out';
-        for (var i = 0, l = coordinates.length; i < l; i++){
-            p = self._tilePoint(ctx, coordinates[i]);
-            g.beginPath();
-            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
-            g.fill();
-        }
+        this._drawPoints(ctx, coordinates);
     }
 });
 
