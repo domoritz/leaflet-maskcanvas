@@ -4,6 +4,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         useAbsoluteRadius: true,  // true: radius in meters, false: radius in pixels
         color: '#000',
         opacity: 0.5,
+        useNormalCircle: false,
         debug: false
     },
 
@@ -87,15 +88,24 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
             self = this,
             p,
             tileSize = this.options.tileSize;
-        g.globalCompositeOperation = 'source-over';
         g.fillStyle = this.options.color;
-        g.fillRect(0, 0, tileSize, tileSize);
-        g.globalCompositeOperation = 'destination-out';
+        if (this.options.lineColor) {
+          g.strokeStyle = this.options.lineColor;
+          g.lineWidth = this.options.lineWidth || 1;
+        }
+        g.globalCompositeOperation = 'source-over';
+        if (!this.options.useNormalCircle) {
+            g.fillRect(0, 0, tileSize, tileSize);
+            g.globalCompositeOperation = 'destination-out';
+        }
         coordinates.forEach(function(coords) {
             p = self._tilePoint(ctx, coords);
             g.beginPath();
             g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
             g.fill();
+            if (self.options.lineColor) {
+                g.stroke();
+            }
         });
     },
 
