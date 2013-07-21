@@ -55,8 +55,8 @@ var layer = L.TileLayer.maskCanvas({
        useAbsoluteRadius: true,  // true: r in meters, false: r in pixels
        color: '#000',  // the color of the layer
        opacity: 0.5,  // opacity of the not covered area
-       useNormalCircle: false,  // true results in normal circles, not masked circles
-       lineColor: '#A00'   // color of the circle outline if useNormalCircle is true
+       noMask: false,  // true results in normal (filled) circled, instead masked circles
+       lineColor: '#A00'   // color of the circle outline if noMask is true
 
 });
 ```

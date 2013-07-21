@@ -4,8 +4,8 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         useAbsoluteRadius: true,  // true: radius in meters, false: radius in pixels
         color: '#000',
         opacity: 0.5,
-        noMask: false,  // if set to true, circles are filled, instead of used as a mask
-        lineColor: undefined,  // only works if noMask == true
+        noMask: false,  // true results in normal (filled) circled, instead masked circles
+        lineColor: undefined,  // color of the circle outline if noMask is true
         debug: false
     },
 
