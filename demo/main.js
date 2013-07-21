@@ -28,7 +28,7 @@ $(function() {
     var coverageLayer = new L.TileLayer.MaskCanvas({'opacity': 0.5, radius: initRadius, useAbsoluteRadius: true, 'attribution': 'VBB stations from <a href="//daten.berlin.de/datensaetze/vbb-fahrplan2012">daten.berlin.de</a>'});
 
     var loadOverlay = function(id) {
-        var url = 'data/' + id + '.json';
+        var url = id + '.json';
         $.getJSON(url).success(function(data) {
             coverageLayer.setData(data);
             map.fitBounds(coverageLayer.bounds);

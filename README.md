@@ -65,6 +65,11 @@ var layer = L.TileLayer.maskCanvas({
 
 ![screenshot](https://raw.github.com/domoritz/leaflet-maskcanvas/master/screenshot.png "Screenshot showing mask canvas layer")
 
+
+## Developers
+
+Run the demo locally with `python -m SimpleHTTPServer` and then open http://0.0.0.0:8000/demo.
+
 ## Acknowledgement
 
 The QuadTree implementation comes from https://github.com/jsmarkus/ExamplesByMesh/tree/master/JavaScript/QuadTree and has been slightly modified. Original Implementation by Mike Chambers.
