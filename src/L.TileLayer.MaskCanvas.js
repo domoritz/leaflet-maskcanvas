@@ -4,7 +4,8 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         useAbsoluteRadius: true,  // true: radius in meters, false: radius in pixels
         color: '#000',
         opacity: 0.5,
-        useNormalCircle: false,
+        noMask: false,  // if set to true, circles are filled, instead of used as a mask
+        lineColor: undefined,  // only works if noMask == true
         debug: false
     },
 
@@ -94,7 +95,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
           g.lineWidth = this.options.lineWidth || 1;
         }
         g.globalCompositeOperation = 'source-over';
-        if (!this.options.useNormalCircle) {
+        if (!this.options.noMask) {
             g.fillRect(0, 0, tileSize, tileSize);
             g.globalCompositeOperation = 'destination-out';
         }
