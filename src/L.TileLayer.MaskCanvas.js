@@ -42,27 +42,38 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         g.fillRect(max / 2 - 5, max / 2 - 5, 10, 10);
         g.strokeText(ctx.tilePoint.x + ' ' + ctx.tilePoint.y + ' ' + ctx.zoom, max / 2 - 30, max / 2 - 10);
     },
-
+    /*
     _createTile: function () {
-        var tile = this._canvasProto.cloneNode(false);
+        //var tile = this._canvasProto.cloneNode(false);
         tile.onselectstart = tile.onmousemove = L.Util.falseFn;
         return tile;
     },
-
+    */
     setData: function(dataset) {
         var self = this;
+
 
         this.bounds = new L.LatLngBounds(dataset);
 
         this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 6, 6);
 
+        var first = dataset[0];
+        var xc = 1, yc = 0;
+        if (first instanceof L.LatLng) {
+            xc = "lng";
+            yc = "lat";
+        }
+
         dataset.forEach(function(d) {
             self._quad.insert({
-                x: d[1], //lng
-                y: d[0] //lat
+                x: d[xc], //lng
+                y: d[yc] //lat
             });
         });
-        this.redraw();
+
+        if (this._map) {
+            this.redraw();
+        }
     },
 
     setRadius: function(radius) {
@@ -90,6 +101,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
             p,
             tileSize = this.options.tileSize;
         g.fillStyle = this.options.color;
+
         if (this.options.lineColor) {
           g.strokeStyle = this.options.lineColor;
           g.lineWidth = this.options.lineWidth || 1;
@@ -111,6 +123,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     },
 
     _boundsToQuery: function(bounds) {
+        if (bounds.getSouthWest() == undefined) { return {x: 0, y: 0, width: 0.1, height: 0.1}; }  // for empty data sets
         return {
             x: bounds.getSouthWest().lng,
             y: bounds.getSouthWest().lat,
