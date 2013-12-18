@@ -27,6 +27,26 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         };
     },
 
+    // return >0 if v1 > v2, <0 if v1 < v2, 0 if v1 == v2
+    _versionCompare: function (v1, v2) {
+        var va1 = v1.split(".");
+        var va2 = v2.split(".");
+
+        var limit = Math.min (va1.length, va2.length);
+        var result = 0;
+        for (var n = 0; (n < limit) && (result == 0); n++) {
+            result = (+va1[n]) - (+va2[n]);
+            if (isNaN(result)) {
+                return undefined;
+            }
+        }
+
+        if (result == 0) {
+            result = va1.length - va2.length;
+        }
+        return result;
+    },
+
     _drawDebugInfo: function (ctx) {
         var max = this.tileSize;
         var g = ctx.canvas.getContext('2d');
@@ -42,13 +62,15 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         g.fillRect(max / 2 - 5, max / 2 - 5, 10, 10);
         g.strokeText(ctx.tilePoint.x + ' ' + ctx.tilePoint.y + ' ' + ctx.zoom, max / 2 - 30, max / 2 - 10);
     },
-    /*
-    _createTile: function () {
-        //var tile = this._canvasProto.cloneNode(false);
+
+
+    _oldCreateTile: function () {
+        var tile = this._canvasProto.cloneNode(false);
         tile.onselectstart = tile.onmousemove = L.Util.falseFn;
         return tile;
     },
-    */
+
+
     setData: function(dataset) {
         var self = this;
 
@@ -188,5 +210,10 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 });
 
 L.TileLayer.maskCanvas = function (options) {
-    return new L.TileLayer.MaskCanvas(options);
+    var mc = new L.TileLayer.MaskCanvas(options);
+    var vcomp = mc._versionCompare("0.7", L.version);
+    if (vcomp !== undefined && vcomp < 0) {
+        mc._createTile = mc._oldCreateTile;
+    }
+    return mc;
 };
