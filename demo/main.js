@@ -2,19 +2,16 @@ $(function() {
     //============
     // Base Layers
 
-    var cloudmadeAttribution =  'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>';
-
-    var layer_CloudMate = new L.tileLayer(
-        'http://{s}.tile.cloudmade.com/63250e2ef1c24cc18761c70e76253f75/997/256/{z}/{x}/{y}.png',{
-            attribution: cloudmadeAttribution,
-            maxZoom: 18
-        }
-    );
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib='Map data © <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {
+            attribution: osmAttrib
+    });
 
     map = new L.Map('map', {
         center: new L.LatLng(52.51538, 13.40997),
         zoom: 8,
-        layers: [layer_CloudMate]
+        layers: [osm]
     });
 
     L.control.scale().addTo(map);
