@@ -43,14 +43,6 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         g.strokeText(ctx.tilePoint.x + ' ' + ctx.tilePoint.y + ' ' + ctx.zoom, max / 2 - 30, max / 2 - 10);
     },
 
-
-    _oldCreateTile: function () {
-        var tile = this._canvasProto.cloneNode(false);
-        tile.onselectstart = tile.onmousemove = L.Util.falseFn;
-        return tile;
-    },
-
-
     setData: function(dataset) {
         var self = this;
 
