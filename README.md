@@ -23,6 +23,8 @@ Check out the demo at http://domoritz.github.com/vbb-coverage/.
 <script src="L.TileLayer.MaskCanvas.js"></script>
 ```
 
+You can also use the package manager [bower](http://bower.io/) to install the package using `bower install leaflet.maskcanvas`.
+
 * Initialize the maskCanvas layer
 
 ```javascript
