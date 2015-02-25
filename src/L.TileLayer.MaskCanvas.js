@@ -1,4 +1,6 @@
-L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
+/* maybe this can help me: https://github.com/aparshin/leaflet-boundary-canvas/blob/master/src/BoundaryCanvas.js */
+
+L.TileLayer.MaskCanvas = L.TileLayer.extend({
     options: {
         radius: 5,
         useAbsoluteRadius: true,  // true: radius in meters, false: radius in pixels
@@ -9,27 +11,42 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         debug: false
     },
 
-    initialize: function (options, data) {
-        var self = this;
-        L.Util.setOptions(this, options);
-
-        this.drawTile = function (tile, tilePoint, zoom) {
-            var ctx = {
-                canvas: tile,
-                tilePoint: tilePoint,
-                zoom: zoom
-            };
-
-            if (self.options.debug) {
-                self._drawDebugInfo(ctx);
-            }
-            this._draw(ctx);
-        };
+    initialize: function (options) {
+      L.Util.setOptions(this, options);
     },
 
-    _drawDebugInfo: function (ctx) {
+    createTile: function (coords) {
+      var canvas = document.createElement('canvas');
+      canvas.width = canvas.height = this.options.tileSize;
+
+      var ctx = canvas.getContext('2d');
+
+      if (this.options.debug) {
+        this._drawDebugInfo(canvas, ctx, coords);
+      }
+      this._draw(canvas, ctx, coords);
+
+      return canvas;
+    },
+
+    _drawDebugInfo: function (canvas, ctx, coords) {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, 255, 255);
+
+      ctx.fillStyle = 'black';
+      ctx.fillText('x: ' + coords.x + ', y: ' + coords.y + ', zoom: ' + coords.z, 20, 20);
+
+      ctx.strokeStyle = 'red';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(255, 0);
+      ctx.lineTo(255, 255);
+      ctx.lineTo(0, 255);
+      ctx.closePath();
+      ctx.stroke();
+    /*
         var max = this.tileSize;
-        var g = ctx.canvas.getContext('2d');
+        var g = canvas.getContext('2d');
         g.globalCompositeOperation = 'destination-over';
         g.strokeStyle = '#000000';
         g.fillStyle = '#FFFF00';
@@ -40,7 +57,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         g.fillRect(max - 5, 0, 5, 5);
         g.fillRect(max - 5, max - 5, 5, 5);
         g.fillRect(max / 2 - 5, max / 2 - 5, 10, 10);
-        g.strokeText(ctx.tilePoint.x + ' ' + ctx.tilePoint.y + ' ' + ctx.zoom, max / 2 - 30, max / 2 - 10);
+        g.strokeText(coords.x + ' ' + coords.y + ' ' + coords.z, max / 2 - 30, max / 2 - 10);*/
     },
 
     setData: function(dataset) {
@@ -75,43 +92,42 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         this.redraw();
     },
 
-    _tilePoint: function (ctx, coords) {
-        // start coords to tile 'space'
-        var s = ctx.tilePoint.multiplyBy(this.options.tileSize);
+    _tilePoint: function (canvas, ctx, coords, pointCoords) {
+      // start coords to tile 'space'
+      var s = coords.multiplyBy(this.options.tileSize);
 
-        // actual coords to tile 'space'
-        var p = this._map.project(new L.LatLng(coords.y, coords.x));
+      // actual coords to tile 'space'
+      var p = this._map.project(new L.LatLng(pointCoords.y, pointCoords.x));
 
-        // point to draw
-        var x = Math.round(p.x - s.x);
-        var y = Math.round(p.y - s.y);
-        return [x, y];
+      // point to draw
+      var x = Math.round(p.x - s.x);
+      var y = Math.round(p.y - s.y);
+      return [x, y];
     },
 
-    _drawPoints: function (ctx, coordinates) {
-        var c = ctx.canvas,
-            g = c.getContext('2d'),
-            self = this,
+    _drawPoints: function (canvas, ctx, coords, pointCoordinates) {
+        var self = this,
             p,
             tileSize = this.options.tileSize;
-        g.fillStyle = this.options.color;
+        ctx.fillStyle = this.options.color;
 
         if (this.options.lineColor) {
-          g.strokeStyle = this.options.lineColor;
-          g.lineWidth = this.options.lineWidth || 1;
+          ctx.strokeStyle = this.options.lineColor;
+          ctx.lineWidth = this.options.lineWidth || 1;
         }
-        g.globalCompositeOperation = 'source-over';
-        if (!this.options.noMask) {
-            g.fillRect(0, 0, tileSize, tileSize);
-            g.globalCompositeOperation = 'destination-out';
+        ctx.globalCompositeOperation = 'source-over';
+        if (!this.options.noMask && !this.options.debug) {
+          ctx.fillRect(0, 0, tileSize, tileSize);
+          ctx.globalCompositeOperation = 'destination-out';
         }
-        coordinates.forEach(function(coords) {
-            p = self._tilePoint(ctx, coords);
-            g.beginPath();
-            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
-            g.fill();
+        pointCoordinates.forEach(function(pointCoords) {
+            p = self._tilePoint(canvas, ctx, coords, pointCoords);
+            ctx.beginPath();
+
+            ctx.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
+            ctx.fill();
             if (self.options.lineColor) {
-                g.stroke();
+                ctx.stroke();
             }
         });
     },
@@ -131,7 +147,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     },
 
     _getLngRadius: function () {
-        return this._getLatRadius() / Math.cos(L.LatLng.DEG_TO_RAD * this._latlng.lat);
+        return this._getLatRadius() / Math.cos(Math.PI / 180 * this._latlng.lat);
     },
 
     // call to update the radius
@@ -152,14 +168,16 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         }
     },
 
-    _draw: function (ctx) {
+    _draw: function (canvas, ctx, coords) {
         if (!this._quad || !this._map) {
             return;
         }
 
         var tileSize = this.options.tileSize;
 
-        var nwPoint = ctx.tilePoint.multiplyBy(tileSize);
+        var tilePoint = new L.Point(coords.x, coords.y);
+
+        var nwPoint = tilePoint.multiplyBy(tileSize);
         var sePoint = nwPoint.add(new L.Point(tileSize, tileSize));
 
         if (this.options.useAbsoluteRadius) {
@@ -175,15 +193,12 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
 
         var bounds = new L.LatLngBounds(this._map.unproject(sePoint), this._map.unproject(nwPoint));
 
-        var coordinates = this._quad.retrieveInBounds(this._boundsToQuery(bounds));
+        var pointCoordinates = this._quad.retrieveInBounds(this._boundsToQuery(bounds));
 
-        this._drawPoints(ctx, coordinates);
+        this._drawPoints(canvas, ctx, coords, pointCoordinates);
     }
 });
 
 L.TileLayer.maskCanvas = function(options) {
-    var mc = new L.TileLayer.MaskCanvas(options);
-    leafletVersion = parseInt(L.version.match(/\d{1,}\.(\d{1,})\.\d{1,}/)[1], 10);
-    if (leafletVersion < 7) mc._createTile = mc._oldCreateTile;
-    return mc;
+    return new L.TileLayer.MaskCanvas(options);
 };
