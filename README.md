@@ -1,3 +1,5 @@
+# I'll try to migrate this plugin to leaflet 0.8. Any help, hints & feedback appreciated.
+
 #Leaflet MaskCanvas
 
 A leaflet canvas layer for displaying large coverage data sets.
