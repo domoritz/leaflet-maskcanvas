@@ -6,7 +6,7 @@
     "Dominik Moritz <domoritz@gmail.com>"
   ],
   "description": "A leaflet canvas layer for displaying large coverage data sets.",
-  "main": "src/L.L.TileLayer.MaskCanvas.js",
+  "main": "src/L.TileLayer.MaskCanvas.js",
   "devDependencies": {
     "leaflet": "~0.7.0"
   },
