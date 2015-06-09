@@ -63,10 +63,18 @@ var layer = L.TileLayer.maskCanvas({
 });
 ```
 
+## Leaflet 1.0-dev
+
+For the upcoming leaflet version there is a slightly changed implementation based on L.GridLayer.
+All you need to do, is replace `L.TileLayer.maskCanvas` with `L.GridLayer.maskCanvas`.
+
+The new `L.GridLayer.maskCanvas` for leaflet 1.0-dev supports the same options as before.
+Additionally it allows you to specify different radii for each data point
+as you can see in the example at http://loggia.at/leaflet-maskcanvas/demo/index-1.0-dev.html
+
 ## Screenshot
 
 ![screenshot](https://raw.github.com/domoritz/leaflet-maskcanvas/master/screenshot.png "Screenshot showing mask canvas layer")
-
 
 ## Developers
 
