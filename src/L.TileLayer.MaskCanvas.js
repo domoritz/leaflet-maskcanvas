@@ -1,6 +1,6 @@
 L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     options: {
-        radius: 5,
+        radius: 5, // this is the default radius (specific radius values may be passed with the data)
         useAbsoluteRadius: true,  // true: radius in meters, false: radius in pixels
         color: '#000',
         opacity: 0.5,
@@ -43,6 +43,14 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         g.strokeText(ctx.tilePoint.x + ' ' + ctx.tilePoint.y + ' ' + ctx.zoom, max / 2 - 30, max / 2 - 10);
     },
 
+  /**
+   * Pass either pairs of (y,x) or (y,x,radius) coordinates.
+   * Alternatively you can also pass LatLng objects.
+   *
+   * Whenever there is no specific radius, the default one is used.
+   *
+   * @param {[[number, number]]|[[number, number, number]]|[L.LatLng]} dataset
+   */
     setData: function(dataset) {
         var self = this;
 
@@ -52,17 +60,21 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 6, 6);
 
         var first = dataset[0];
-        var xc = 1, yc = 0;
+        var xc = 1, yc = 0, rc = 2;
         if (first instanceof L.LatLng) {
             xc = "lng";
             yc = "lat";
         }
 
+        this._maxRadius = 0;
         dataset.forEach(function(d) {
+            var radius = d[rc] || self.options.radius;
             self._quad.insert({
                 x: d[xc], //lng
-                y: d[yc] //lat
+                y: d[yc], //lat
+                r: radius
             });
+            self._maxRadius = Math.max(self._maxRadius, radius);
         });
 
         if (this._map) {
@@ -85,7 +97,8 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         // point to draw
         var x = Math.round(p.x - s.x);
         var y = Math.round(p.y - s.y);
-        return [x, y];
+        var r = this._calcRadius(coords.r || this.options.radius, coords);
+        return [x, y, r];
     },
 
     _drawPoints: function (ctx, coordinates) {
@@ -108,7 +121,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         coordinates.forEach(function(coords) {
             p = self._tilePoint(ctx, coords);
             g.beginPath();
-            g.arc(p[0], p[1], self._getRadius(), 0, Math.PI * 2);
+            g.arc(p[0], p[1], p[2], 0, Math.PI * 2);
             g.fill();
             if (self.options.lineColor) {
                 g.stroke();
@@ -144,12 +157,34 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
     },
 
     // the radius of a circle can be either absolute in pixels or in meters
-    _getRadius: function() {
+    _getMaxRadius: function(tilePoint) {
+        return this._calcRadius(this._maxRadius, tilePoint);
+    },
+
+    /**
+     * The radius of a circle can be either absolute in pixels or in meters.
+     *
+     * @param {number} radius Pass either custom point radius, or default radius.
+     * @param {L.Point} tilePoint Zoom level
+     * @returns {number} Projected radius (stays the same distance in meters across zoom levels).
+     * @private
+     */
+    _calcRadius: function (radius, tilePoint) {
+        var projectedRadius;
+
         if (this.options.useAbsoluteRadius) {
-            return this._radius;
-        } else{
-            return this.options.radius;
+            var latRadius = (radius / 40075017) * 360,
+                lngRadius = latRadius / Math.cos(Math.PI / 180 * this._latlng.lat),
+                latLng2 = new L.LatLng(this._latlng.lat, this._latlng.lng - lngRadius, true),
+                point2 = this._map.latLngToLayerPoint(latLng2, tilePoint.z),
+                point = this._map.latLngToLayerPoint(this._latlng, tilePoint.z);
+
+            projectedRadius = Math.max(Math.round(point.x - point2.x), 1);
+        } else {
+            projectedRadius = radius;
         }
+
+        return projectedRadius;
     },
 
     _draw: function (ctx) {
@@ -169,7 +204,7 @@ L.TileLayer.MaskCanvas = L.TileLayer.Canvas.extend({
         }
 
         // padding
-        var pad = new L.Point(this._getRadius(), this._getRadius());
+        var pad = new L.Point(this._getMaxRadius(ctx.tilePoint), this._getMaxRadius(ctx.tilePoint));
         nwPoint = nwPoint.subtract(pad);
         sePoint = sePoint.add(pad);
 
