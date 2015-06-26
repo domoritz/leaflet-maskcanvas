@@ -4,7 +4,7 @@
  */
 L.GridLayer.MaskCanvas = L.GridLayer.extend({
   options: {
-    radius: 5,
+    radius: 5, // this is the default radius (specific radius values may be passed with the data)
     useAbsoluteRadius: true,  // true: radius in meters, false: radius in pixels
     color: '#000',
     opacity: 0.5,
@@ -57,6 +57,8 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
    * Pass either pairs of (y,x) or (y,x,radius) coordinates.
    * Alternatively you can also pass LatLng objects.
    *
+   * Whenever there is no specific radius, the default one is used.
+   *
    * @param {[[number, number]]|[[number, number, number]]|[L.LatLng]} dataset
    */
   setData: function (dataset) {
@@ -66,17 +68,21 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
     this._quad = new QuadTree(this._boundsToQuery(this.bounds), false, 6, 6);
 
     var first = dataset[0];
-    var xc = 1, yc = 0;
+    var xc = 1, yc = 0, rc = 2;
     if (first instanceof L.LatLng) {
       xc = "lng";
       yc = "lat";
     }
 
+    this._maxRadius = 0;
     dataset.forEach(function(d) {
+      var radius = d[rc] || self.options.radius;
       self._quad.insert({
         x: d[xc], //lng
-        y: d[yc] //lat
+        y: d[yc], //lat
+        r: radius
       });
+      self._maxRadius = Math.max(self._maxRadius, radius);
     });
 
     if (this._map) {
@@ -84,15 +90,31 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
     }
   },
 
+  /**
+   * Set default radius value.
+   *
+   * @param {number} radius
+   */
   setRadius: function(radius) {
     this.options.radius = radius;
     this.redraw();
   },
 
   /**
+   * Returns the biggest radius value of all data points.
+   *
+   * @param {number} zoom Is required for projecting.
+   * @returns {number}
+   * @private
+   */
+  _getMaxRadius: function(zoom) {
+    return this._calcRadius(this._maxRadius, zoom);
+  },
+
+  /**
    * @param {L.Point} coords
-   * @param {L.Point} pointCoordinate
-   * @returns {[number, number]}
+   * @param {{x: number, y: number, r: number}} pointCoordinate
+   * @returns {[number, number, number]}
    * @private
    */
   _tilePoint: function (coords, pointCoordinate) {
@@ -105,7 +127,8 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
     // point to draw
     var x = Math.round(p.x - s.x);
     var y = Math.round(p.y - s.y);
-    return [x, y];
+    var r = this._calcRadius(pointCoordinate.r || this.options.radius, coords.z);
+    return [x, y, r];
   },
 
   _boundsToQuery: function(bounds) {
@@ -118,24 +141,30 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
     };
   },
 
-  _getLatRadius: function () {
-    return (this.options.radius / 40075017) * 360;
-  },
+  /**
+   * The radius of a circle can be either absolute in pixels or in meters.
+   *
+   * @param {number} radius Pass either custom point radius, or default radius.
+   * @param {number} zoom Zoom level
+   * @returns {number} Projected radius (stays the same distance in meters across zoom levels).
+   * @private
+   */
+  _calcRadius: function (radius, zoom) {
+    var projectedRadius;
 
-  _getLngRadius: function () {
-    return this._getLatRadius() / Math.cos(Math.PI / 180 * this._latlng.lat);
-  },
+    if (this.options.useAbsoluteRadius) {
+      var latRadius = (radius / 40075017) * 360,
+          lngRadius = latRadius / Math.cos(Math.PI / 180 * this._latLng.lat),
+          latLng2 = new L.LatLng(this._latLng.lat, this._latLng.lng - lngRadius, true),
+          point2 = this._latLngToLayerPoint(latLng2, zoom),
+          point = this._latLngToLayerPoint(this._latLng, zoom);
 
-  // call to update the radius
-  projectLatLngs: function (coords) {
-    var lngRadius = this._getLngRadius(),
-        latlng2 = new L.LatLng(this._latlng.lat, this._latlng.lng - lngRadius, true);
+      projectedRadius = Math.max(Math.round(point.x - point2.x), 1);
+    } else {
+      projectedRadius = radius;
+    }
 
-    var point2 = this._latLngToLayerPoint(latlng2, coords.z);
-
-    var point = this._latLngToLayerPoint(this._latlng, coords.z);
-
-    this._radius = Math.max(Math.round(point.x - point2.x), 1);
+    return projectedRadius;
   },
 
   /**
@@ -150,15 +179,6 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
   _latLngToLayerPoint: function (latLng, zoom) {
     var point = this._map.project(latLng, zoom)._round();
     return point._subtract(this._map.getPixelOrigin());
-  },
-
-  // the radius of a circle can be either absolute in pixels or in meters
-  _getRadius: function() {
-    if (this.options.useAbsoluteRadius) {
-      return this._radius;
-    } else{
-      return this.options.radius;
-    }
   },
 
   /**
@@ -178,12 +198,11 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
 
     if (this.options.useAbsoluteRadius) {
       var centerPoint = nwPoint.add(new L.Point(tileSize/2, tileSize/2));
-      this._latlng = this._map.unproject(centerPoint, coords.z);
-      this.projectLatLngs(coords);
+      this._latLng = this._map.unproject(centerPoint, coords.z);
     }
 
     // padding
-    var pad = new L.Point(this._getRadius(), this._getRadius());
+    var pad = new L.Point(this._getMaxRadius(coords.z), this._getMaxRadius(coords.z));
     nwPoint = nwPoint.subtract(pad);
     sePoint = sePoint.add(pad);
 
@@ -197,7 +216,7 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
   /**
    * @param {HTMLCanvasElement} canvas
    * @param {L.Point} coords
-   * @param {[L.Point]} pointCoordinates
+   * @param {[{x: number, y: number, r: number}]} pointCoordinates
    * @private
    */
   _drawPoints: function (canvas, coords, pointCoordinates) {
@@ -219,8 +238,9 @@ L.GridLayer.MaskCanvas = L.GridLayer.extend({
     for (var index in pointCoordinates) {
       if (pointCoordinates.hasOwnProperty(index)) {
         tilePoint = this._tilePoint(coords, pointCoordinates[index]);
+
         ctx.beginPath();
-        ctx.arc(tilePoint[0], tilePoint[1], this._getRadius(), 0, Math.PI * 2);
+        ctx.arc(tilePoint[0], tilePoint[1], tilePoint[2], 0, Math.PI * 2);
         ctx.fill();
         if (this.options.lineColor) {
           ctx.stroke();
