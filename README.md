@@ -1,4 +1,4 @@
-#Leaflet MaskCanvas
+# Leaflet MaskCanvas
 
 A leaflet canvas layer for displaying large coverage data sets.
 
@@ -12,7 +12,7 @@ __Features__:
 
 Check out the demo at http://domoritz.github.com/vbb-coverage/.
 
-##Usage
+## Usage
 
 ### Set up
 
