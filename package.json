@@ -1,6 +1,6 @@
 {
   "name": "leaflet-maskcanvas",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A leaflet canvas layer for displaying large coverage data sets",
   "main": "dist/L.GridLayer.MaskCanvas.js",
   "repository": {
