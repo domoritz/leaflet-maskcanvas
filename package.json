@@ -1,0 +1,25 @@
+{
+  "name": "leaflet-maskcanvas",
+  "version": "0.0.0",
+  "description": "A leaflet canvas layer for displaying large coverage data sets",
+  "main": "dist/L.GridLayer.MaskCanvas.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/domoritz/leaflet-maskcanvas.git"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepare": "npm run build",
+    "preproduction": "git checkout master && git pull",
+    "production": "np --no-cleanup"
+  },
+  "peerDependencies": {
+    "leaflet": ">= 1.x"
+  },
+  "devDependencies": {
+    "np": "^3.0.1",
+    "rollup": "^0.59.4",
+    "rollup-plugin-inject": "^2.0.0",
+    "rollup-plugin-legacy": "^1.0.0"
+  }
+}

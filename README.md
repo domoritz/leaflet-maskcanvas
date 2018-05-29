@@ -23,21 +23,24 @@ Check out the demo at http://domoritz.github.com/vbb-coverage/.
 <script src="L.TileLayer.MaskCanvas.js"></script>
 ```
 
-You can also use the package manager [bower](http://bower.io/) to install the package using `bower install leaflet.maskcanvas`.
+You can also use the following package managers
 
-* Initialize the maskCanvas layer
+* [npm](https://www.npmjs.com/) `npm install leaflet.maskcanvas`
+* [bower](http://bower.io/) `bower install leaflet.maskcanvas`
+
+#### Initialize the maskCanvas layer
 
 ```javascript
 L.TileLayer.maskCanvas();
 ```
 
-* Set the dataset for the layer.
+#### Set the dataset for the layer.
 
 ```javascript
 layer.setData(data);
 ```
 
-* Finally add the layer to the map.
+#### Finally add the layer to the map.
 
 ```javascript
 map.addLayer(layer);
@@ -59,16 +62,15 @@ var layer = L.TileLayer.maskCanvas({
        opacity: 0.5,  // opacity of the not covered area
        noMask: false,  // true results in normal (filled) circled, instead masked circles
        lineColor: '#A00'   // color of the circle outline if noMask is true
-
 });
 ```
 
-## Leaflet 1.0-dev
+## Leaflet 1.0
 
 For the upcoming leaflet version there is a slightly changed implementation based on L.GridLayer.
 All you need to do, is replace `L.TileLayer.maskCanvas` with `L.GridLayer.maskCanvas`.
 
-The new `L.GridLayer.maskCanvas` for leaflet 1.0-dev supports the same options as before.
+The new `L.GridLayer.maskCanvas` for leaflet 1.0 supports the same options as before.
 Additionally it allows you to specify different radii for each data point
 as you can see in the example at http://loggia.at/leaflet-maskcanvas/demo/index-1.0-dev.html
 
