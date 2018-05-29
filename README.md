@@ -25,7 +25,7 @@ Check out the demo at http://domoritz.github.com/vbb-coverage/.
 
 You can also use the following package managers
 
-* [npm](https://www.npmjs.com/) `npm install leaflet.maskcanvas`
+* [npm](https://www.npmjs.com/) `npm install leaflet-maskcanvas`
 * [bower](http://bower.io/) `bower install leaflet.maskcanvas`
 
 #### Initialize the maskCanvas layer
