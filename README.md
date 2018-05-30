@@ -12,21 +12,31 @@ __Features__:
 
 Check out the demo at http://domoritz.github.com/vbb-coverage/.
 
-## Usage
+## Set up
 
-### Set up
+### NPM
 
-* Add the MaskCanvas and Quadtree libraries.
+```
+npm install leaflet-maskcanvas
+```
+
+This library depends on `leaflet` >= 1.0, you can install it separately with `npm i leaflet`
+
+
+### Script
+
+Clone or download the repository and use the files in `src/` directly
 
 ```html
 <script src="QuadTree.js"></script>
 <script src="L.TileLayer.MaskCanvas.js"></script>
 ```
 
-You can also use the following package managers
+### Bower
 
-* [npm](https://www.npmjs.com/) `npm install leaflet-maskcanvas`
-* [bower](http://bower.io/) `bower install leaflet.maskcanvas`
+`bower install leaflet.maskcanvas`
+
+## Usage
 
 #### Initialize the maskCanvas layer
 
@@ -65,15 +75,6 @@ var layer = L.TileLayer.maskCanvas({
 });
 ```
 
-## Leaflet 1.0
-
-For the upcoming leaflet version there is a slightly changed implementation based on L.GridLayer.
-All you need to do, is replace `L.TileLayer.maskCanvas` with `L.GridLayer.maskCanvas`.
-
-The new `L.GridLayer.maskCanvas` for leaflet 1.0 supports the same options as before.
-Additionally it allows you to specify different radii for each data point
-as you can see in the example at http://loggia.at/leaflet-maskcanvas/demo/index-1.0-dev.html
-
 ## Screenshot
 
 ![screenshot](https://raw.github.com/domoritz/leaflet-maskcanvas/master/screenshot.png "Screenshot showing mask canvas layer")
@@ -81,6 +82,7 @@ as you can see in the example at http://loggia.at/leaflet-maskcanvas/demo/index-
 ## Developers
 
 Run the demo locally with `python -m SimpleHTTPServer` and then open http://0.0.0.0:8000/demo.
+If you don't have python, but only npm you can also use `npx http-server -p 8000` and go to http://localhost:8000/demo.
 
 ## Acknowledgement
 
