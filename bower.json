@@ -1,14 +1,14 @@
 {
   "name": "leaflet.maskcanvas",
-  "version": "0.3",
+  "version": "0.4.0",
   "homepage": "https://github.com/domoritz/leaflet-maskcanvas",
   "authors": [
     "Dominik Moritz <domoritz@gmail.com>"
   ],
   "description": "A leaflet canvas layer for displaying large coverage data sets.",
-  "main": "src/L.TileLayer.MaskCanvas.js",
+  "main": "src/L.GridLayer.MaskCanvas.js",
   "devDependencies": {
-    "leaflet": "~0.7.0"
+    "leaflet": "~1.0.0"
   },
   "directories": {
     "example": "demo"

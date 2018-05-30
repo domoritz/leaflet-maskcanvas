@@ -1,39 +1,38 @@
 $(function() {
-    //============
-    // Base Layers
+  //============
+  // Base Layers
 
-    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var osmAttrib='Map data © <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
-    var osm = new L.TileLayer(osmUrl, {
-            attribution: osmAttrib
-    });
+  var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var osmAttrib='Map data © <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
+  var osm = new L.TileLayer(osmUrl, {
+    attribution: osmAttrib
+  });
 
-    map = new L.Map('map', {
-        center: new L.LatLng(52.51538, 13.40997),
-        zoom: 8,
-        layers: [osm]
-    });
+  var map = new L.Map('map', {
+    center: new L.LatLng(48.210033, 16.363449),
+    zoom: 15,
+    layers: [osm]
+  });
 
-    L.control.scale().addTo(map);
+  L.control.scale().addTo(map);
 
-    //================
-    // Set up overlays
+  //================
+  // Set up overlays
 
-    var initRadius = 800;
-    $('input.range').attr('value', initRadius);
+  var coverageLayer = new L.GridLayer.MaskCanvas({
+    opacity: 0.5,
+    radius: 70,
+    useAbsoluteRadius: true
+  });
+  coverageLayer.setData([
+    [48.21033, 16.3614, 80],  // Burgtheather
+    [48.21086, 16.3573, 110], // Rathaus
+    [48.2085, 16.3732],       // Stephansdom (uses default radius of 70)
+    [48.2081, 16.3584, 100],  // Parlament
+    [48.19832, 16.37185, 42], // Karlskirche
+    [48.20332, 16.36909, 80]  // Staatsoper
+  ]);
 
-    var coverageLayer = new L.TileLayer.MaskCanvas({'opacity': 0.5, radius: initRadius, useAbsoluteRadius: true, 'attribution': 'VBB stations from <a href="//daten.berlin.de/datensaetze/vbb-fahrplan2012">daten.berlin.de</a>'});
-
-    var loadOverlay = function(id) {
-        var url = id + '.json';
-        $.getJSON(url).success(function(data) {
-            coverageLayer.setData(data);
-            map.fitBounds(coverageLayer.bounds);
-            map.addLayer(coverageLayer);
-        }).error(function(err) {
-            alert('An error occurred', err);
-        });
-    };
-
-    loadOverlay('VBB');
+  map.addLayer(coverageLayer);
+  map.fitBounds(coverageLayer.bounds);
 });

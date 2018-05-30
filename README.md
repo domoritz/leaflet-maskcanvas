@@ -12,32 +12,45 @@ __Features__:
 
 Check out the demo at http://domoritz.github.com/vbb-coverage/.
 
-## Usage
+## Set up
 
-### Set up
+### NPM
 
-* Add the MaskCanvas and Quadtree libraries.
+```
+npm install leaflet-maskcanvas
+```
+
+This library depends on `leaflet` >= 1.0, you can install it separately with `npm i leaflet`
+
+
+### Script
+
+Clone or download the repository and use the files in `src/` directly
 
 ```html
 <script src="QuadTree.js"></script>
 <script src="L.TileLayer.MaskCanvas.js"></script>
 ```
 
-You can also use the package manager [bower](http://bower.io/) to install the package using `bower install leaflet.maskcanvas`.
+### Bower
 
-* Initialize the maskCanvas layer
+`bower install leaflet.maskcanvas`
+
+## Usage
+
+#### Initialize the maskCanvas layer
 
 ```javascript
 L.TileLayer.maskCanvas();
 ```
 
-* Set the dataset for the layer.
+#### Set the dataset for the layer.
 
 ```javascript
 layer.setData(data);
 ```
 
-* Finally add the layer to the map.
+#### Finally add the layer to the map.
 
 ```javascript
 map.addLayer(layer);
@@ -59,18 +72,8 @@ var layer = L.TileLayer.maskCanvas({
        opacity: 0.5,  // opacity of the not covered area
        noMask: false,  // true results in normal (filled) circled, instead masked circles
        lineColor: '#A00'   // color of the circle outline if noMask is true
-
 });
 ```
-
-## Leaflet 1.0-dev
-
-For the upcoming leaflet version there is a slightly changed implementation based on L.GridLayer.
-All you need to do, is replace `L.TileLayer.maskCanvas` with `L.GridLayer.maskCanvas`.
-
-The new `L.GridLayer.maskCanvas` for leaflet 1.0-dev supports the same options as before.
-Additionally it allows you to specify different radii for each data point
-as you can see in the example at http://loggia.at/leaflet-maskcanvas/demo/index-1.0-dev.html
 
 ## Screenshot
 
@@ -79,6 +82,7 @@ as you can see in the example at http://loggia.at/leaflet-maskcanvas/demo/index-
 ## Developers
 
 Run the demo locally with `python -m SimpleHTTPServer` and then open http://0.0.0.0:8000/demo.
+If you don't have python, but only npm you can also use `npx http-server -p 8000` and go to http://localhost:8000/demo.
 
 ## Acknowledgement
 
