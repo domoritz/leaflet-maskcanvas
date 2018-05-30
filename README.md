@@ -1,5 +1,7 @@
 # Leaflet MaskCanvas
 
+[![npm version](https://img.shields.io/npm/v/leaflet-maskcanvas.svg)](https://www.npmjs.com/package/leaflet-maskcanvas)
+
 A leaflet canvas layer for displaying large coverage data sets.
 
 __Features__:
