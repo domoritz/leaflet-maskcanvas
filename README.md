@@ -12,7 +12,7 @@ __Features__:
 
 ## Demo
 
-Check out the demo at http://domoritz.github.com/vbb-coverage/.
+Check out the demo at https://domoritz.github.io/vbb-coverage/.
 
 ## Set up
 
